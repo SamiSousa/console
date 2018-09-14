@@ -6,7 +6,7 @@ import * as _ from 'lodash-es';
 import { createModalLauncher, ModalTitle, ModalBody, ModalSubmitFooter } from '../factory/modal';
 import { PromiseComponent } from '../utils';
 import { K8sKind, K8sResourceKind, modelFor, referenceFor, referenceForModel } from '../../module/k8s';
-import { SubscriptionKind, InstallPlanApproval, InstallPlanKind } from '../cloud-services/index';
+import { SubscriptionKind, InstallPlanApproval, InstallPlanKind } from '../operator-lifecycle-manager/index';
 import { RadioInput } from '../radio';
 import { SubscriptionModel, InstallPlanModel } from '../../models';
 
@@ -75,7 +75,7 @@ export class InstallPlanApprovalModal extends PromiseComponent {
   }
 }
 
-export const createInstallPlanApprovalModal: (props: ModalProps) => {result: Promise<void>} = createModalLauncher(InstallPlanApprovalModal);
+export const createInstallPlanApprovalModal = createModalLauncher<InstallPlanApprovalModalProps>(InstallPlanApprovalModal);
 
 export type InstallPlanApprovalModalProps = {
   cancel: (e: Event) => void;
@@ -89,5 +89,3 @@ export type InstallPlanApprovalModalState = {
   errorMessage: string;
   selectedApprovalStrategy: InstallPlanApproval;
 };
-
-type ModalProps = Omit<InstallPlanApprovalModalProps, 'cancel' | 'close'>;

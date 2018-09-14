@@ -14,7 +14,6 @@ export * from './vertnav';
 export * from './details-page';
 export * from './inject';
 export * from './disabled';
-export * from './file-input';
 export * from './firehose';
 export * from './dropdown';
 export * from './status-box';
@@ -42,6 +41,7 @@ export * from './build-hooks';
 export * from './webhooks';
 export * from './section-heading';
 export * from './scroll-to-top-on-mount';
+export * from './service-catalog-status';
 
 /*
   Add the enum for NameValueEditorPair here and not in its namesake file because the editor should always be
@@ -54,3 +54,19 @@ export const enum NameValueEditorPair {
   Value,
   Index
 }
+
+export const enum EnvFromPair {
+  Prefix = 0,
+  Resource,
+  Index
+}
+
+/**
+ * The environment editor manages two types of env variables env and envFrom. This const distinguishes the two.
+ */
+export const enum EnvType {
+  ENV = 0,
+  ENV_FROM = 1
+}
+
+

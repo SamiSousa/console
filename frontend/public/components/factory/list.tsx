@@ -8,8 +8,19 @@ import * as fuzzy from 'fuzzysearch';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { AutoSizer, List as VirtualList, WindowScroller, CellMeasurerCache, CellMeasurer } from 'react-virtualized';
-
-import { getJobTypeAndCompletions, isNodeReady, podPhase, podPhaseFilterReducer, podReadiness, K8sResourceKind, K8sKind, K8sResourceKindReference } from '../../module/k8s';
+import {
+  K8sKind,
+  K8sResourceKind,
+  K8sResourceKindReference,
+  getJobTypeAndCompletions,
+  serviceCatalogStatus,
+  isNodeReady,
+  planExternalName,
+  podPhase,
+  podPhaseFilterReducer,
+  podReadiness,
+  serviceClassDisplayName } from '../../module/k8s';
+import { alertRuleState } from '../../module/monitoring';
 import { UIActions } from '../../ui/ui-actions';
 import { ingressValidHosts } from '../ingress';
 import { routeStatus } from '../routes';
@@ -22,6 +33,10 @@ const fuzzyCaseInsensitive = (a, b) => fuzzy(_.toLower(a), _.toLower(b));
 // TODO: Having list filters here is undocumented, stringly-typed, and non-obvious. We can change that
 const listFilters = {
   'name': (filter, obj) => fuzzyCaseInsensitive(filter, obj.metadata.name),
+
+  'alert-rule-name': (filter, alertRule) => fuzzyCaseInsensitive(filter, alertRule.name),
+
+  'alert-rule-state': (filter, alertRule) => filter.selected.has(alertRuleState(alertRule)),
 
   // Filter role by role kind
   'role-kind': (filter, role) => filter.selected.has(roleType(role)),
@@ -93,6 +108,15 @@ const listFilters = {
     return statuses.selected.has(status) || !_.includes(statuses.all, status);
   },
 
+  'catalog-status': (statuses, catalog) => {
+    if (!statuses || !statuses.selected || !statuses.selected.size) {
+      return true;
+    }
+
+    let status = serviceCatalogStatus(catalog);
+    return statuses.selected.has(status) || !_.includes(statuses.all, status);
+  },
+
   'secret-type': (types, secret) => {
     if (!types || !types.selected || !types.selected.size) {
       return true;
@@ -109,6 +133,13 @@ const listFilters = {
     const phase = pvc.status.phase;
     return phases.selected.has(phase) || !_.includes(phases.all, phase);
   },
+
+  // Filter service classes by text match
+  'service-class': (str, serviceClass) => {
+    const displayName = serviceClassDisplayName(serviceClass);
+    return fuzzyCaseInsensitive(str, displayName);
+  },
+
 };
 
 const getFilteredRows = (_filters, objects) => {
@@ -140,9 +171,11 @@ const filterPropType = (props, propName, componentName) => {
 };
 
 const sorts = {
+  alertRuleState,
   daemonsetNumScheduled: daemonset => _.toInteger(_.get(daemonset, 'status.currentNumberScheduled')),
   dataSize: resource => _.size(_.get(resource, 'data')),
   ingressValidHosts,
+  serviceCatalogStatus,
   jobCompletions: job => getJobTypeAndCompletions(job).completions,
   jobType: job => getJobTypeAndCompletions(job).type,
   nodeReadiness: node => {
@@ -152,8 +185,10 @@ const sorts = {
   },
   nodeUpdateStatus: node => _.get(containerLinuxUpdateOperator.getUpdateStatus(node), 'text'),
   numReplicas: resource => _.toInteger(_.get(resource, 'status.replicas')),
+  planExternalName,
   podPhase,
   podReadiness,
+  serviceClassDisplayName,
   string: val => JSON.stringify(val),
 };
 
@@ -267,13 +302,14 @@ Rows.propTypes = {
   Row: PropTypes.func.isRequired,
 };
 
-const stateToProps = ({UI}, {data = [], filters = {}, loaded = false, reduxID = null, reduxIDs = null, staticFilters = [{}]}) => {
+const stateToProps = ({UI}, {data = [], filters = {}, loaded = false, reduxID = null, reduxIDs = null, staticFilters = [{}], defaultSortField = 'metadata.name', defaultSortFunc = undefined}) => {
   const allFilters = staticFilters ? Object.assign({}, filters, ...staticFilters) : filters;
   let newData = getFilteredRows(allFilters, data);
 
   const listId = reduxIDs ? reduxIDs.join(',') : reduxID;
-  const currentSortField = UI.getIn(['listSorts', listId, 'field'], 'metadata.name');
-  const currentSortFunc = UI.getIn(['listSorts', listId, 'func']);
+  // Only default to 'metadata.name' if no `defaultSortFunc`
+  const currentSortField = UI.getIn(['listSorts', listId, 'field'], defaultSortFunc ? undefined : defaultSortField);
+  const currentSortFunc = UI.getIn(['listSorts', listId, 'func'], defaultSortFunc);
   const currentSortOrder = UI.getIn(['listSorts', listId, 'orderBy'], 'asc');
 
   if (loaded) {
@@ -415,6 +451,8 @@ export type ListInnerProps = {
   currentSortOrder?: any;
   listId?: string;
   sortList?: (...args) => any;
+  defaultSortField?: string;
+  defaultSortFunc?: string;
 };
 
 export type ResourceRowProps = {
@@ -439,3 +477,4 @@ export type WorkloadListRowProps = {
 
 Rows.displayName = 'Rows';
 WorkloadListRow.displayName = 'WorkloadListRow';
+

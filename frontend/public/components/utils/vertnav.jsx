@@ -4,15 +4,20 @@ import * as classNames from 'classnames';
 import * as PropTypes from 'prop-types';
 import { Route, Switch, Link } from 'react-router-dom';
 
-import { StatusBox } from './index';
+import { EmptyBox, StatusBox } from './index';
 import { PodsPage } from '../pod';
 import { AsyncComponent } from '../utils/async';
 
 const editYamlComponent = (props) => <AsyncComponent loader={() => import('../edit-yaml').then(c => c.EditYAML)} obj={props.obj} />;
+export const viewYamlComponent = (props) => <AsyncComponent loader={() => import('../edit-yaml').then(c => c.EditYAML)} obj={props.obj} readOnly={true} />;
 
 class PodsComponent extends React.PureComponent {
   render() {
     const {metadata: {namespace}, spec: {selector}} = this.props.obj;
+    if (_.isEmpty(selector)) {
+      return <EmptyBox label="Pods" />;
+    }
+
     // Hide the create button to avoid confusion when showing pods for an object.
     // Otherwise it might seem like you click "Create Pod" to add replicas instead
     // of scaling the owner.
@@ -59,6 +64,16 @@ export const navFactory = {
   envEditor: (component) => ({
     href: 'environment',
     name: 'Environment',
+    component: component,
+  }),
+  clusterServiceClasses: component => ({
+    href: 'serviceclasses',
+    name: 'Service Classes',
+    component: component,
+  }),
+  clusterServicePlans: component => ({
+    href: 'serviceplans',
+    name: 'Service Plans',
     component: component,
   })
 };

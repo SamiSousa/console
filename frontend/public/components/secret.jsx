@@ -9,27 +9,12 @@ import { SecretType } from './secrets/create-secret';
 
 export const WebHookSecretKey = 'WebHookSecretKey';
 
-// Edit in YAML if not editing:
-// - source secrets
-// - webhook secret with one key.
-const editInYaml = obj => {
-  switch (obj.type) {
-    case SecretType.basicAuth:
-    case SecretType.sshAuth:
-      return false;
-    case SecretType.opaque:
-      return !_.has(obj, ['data', WebHookSecretKey]) || _.size(obj.data) !== 1;
-    default:
-      return true;
-  }
-};
-
 const menuActions = [
   Cog.factory.ModifyLabels,
   Cog.factory.ModifyAnnotations,
   (kind, obj) => ({
     label: `Edit ${kind.label}`,
-    href: editInYaml(obj) ? `${resourceObjPath(obj, kind.kind)}/edit-yaml` : `${resourceObjPath(obj, kind.kind)}/edit`,
+    href: `${resourceObjPath(obj, kind.kind)}/edit`,
   }),
   Cog.factory.Delete,
 ];
@@ -121,8 +106,8 @@ const filters = [{
 
 const SecretsPage = props => {
   const createItems = {
-    // image: 'Create Image Pull Secret',
-    // generic: 'Create Key/Value Secret',
+    generic: 'Key/Value Secret',
+    image: 'Image Pull Secret',
     source: 'Source Secret',
     webhook: 'Webhook Secret',
     yaml: 'Secret from YAML',
@@ -130,7 +115,7 @@ const SecretsPage = props => {
 
   const createProps = {
     items: createItems,
-    createLink: (type) => `/k8s/ns/${props.namespace}/secrets/new/${type !== 'yaml' ? type : ''}`
+    createLink: (type) => `/k8s/ns/${props.namespace || 'default'}/secrets/new/${type !== 'yaml' ? type : ''}`
   };
 
   return <ListPage ListComponent={SecretsList} canCreate={true} rowFilters={filters} createButtonText="Create" createProps={createProps} {...props} />;

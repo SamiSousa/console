@@ -6,7 +6,7 @@ import * as _ from 'lodash-es';
 import { createModalLauncher, ModalTitle, ModalBody, ModalSubmitFooter } from '../factory/modal';
 import { PromiseComponent, ResourceLink } from '../utils';
 import { K8sKind, K8sResourceKind, referenceForModel } from '../../module/k8s';
-import { SubscriptionKind, Package } from '../cloud-services/index';
+import { SubscriptionKind, Package } from '../operator-lifecycle-manager/index';
 import { SubscriptionModel, ClusterServiceVersionModel } from '../../models';
 import { RadioInput } from '../radio';
 
@@ -50,7 +50,7 @@ export class SubscriptionChannelModal extends PromiseComponent {
   }
 }
 
-export const createSubscriptionChannelModal: (props: ModalProps) => {result: Promise<void>} = createModalLauncher(SubscriptionChannelModal);
+export const createSubscriptionChannelModal = createModalLauncher<SubscriptionChannelModalProps>(SubscriptionChannelModal);
 
 export type SubscriptionChannelModalProps = {
   cancel: (e: Event) => void;
@@ -65,5 +65,3 @@ export type SubscriptionChannelModalState = {
   errorMessage: string;
   selectedChannel: string;
 };
-
-type ModalProps = Omit<SubscriptionChannelModalProps, 'cancel' | 'close'>;

@@ -281,8 +281,9 @@ const MonitoringNavSection_ = ({urls, closeMenu}) => {
   const grafanaURL = urls[MonitoringRoutes.Grafana];
   return prometheusURL || alertManagerURL || grafanaURL
     ? <NavSection text="Monitoring" icon="pficon pficon-screen">
+      {prometheusURL && <HrefLink href="/monitoring/alerts" name="Alerts" onClick={closeMenu} />}
       {prometheusURL && <HrefLink href={prometheusURL} target="_blank" name="Metrics" onClick={closeMenu} isExternal={true} />}
-      {alertManagerURL && <HrefLink href={alertManagerURL} target="_blank" name="Alerts" onClick={closeMenu} isExternal={true} />}
+      {alertManagerURL && <HrefLink href={alertManagerURL} target="_blank" name="Alertmanager" onClick={closeMenu} isExternal={true} />}
       {grafanaURL && <HrefLink href={grafanaURL} target="_blank" name="Dashboards" onClick={closeMenu} isExternal={true} />}
     </NavSection>
     : null;
@@ -375,7 +376,7 @@ export class Nav extends React.Component {
             <ResourceNSLink resource="events" name="Events" onClick={this.close} />
           </NavSection>
 
-          <NavSection required={FLAGS.CLOUD_SERVICES} text="Operators" img={operatorImg} activeImg={operatorActiveImg} >
+          <NavSection required={FLAGS.OPERATOR_LIFECYCLE_MANAGER} text="Operators" img={operatorImg} activeImg={operatorActiveImg} >
             <ResourceNSLink model={KubernetesMarketplaceModel} resource={KubernetesMarketplaceModel.plural} name="Kubernetes Marketplace" onClick={this.close} />
             <ResourceNSLink model={ClusterServiceVersionModel} resource={ClusterServiceVersionModel.plural} name="Cluster Service Versions" onClick={this.close} />
             <Sep />
@@ -419,6 +420,13 @@ export class Nav extends React.Component {
             <ResourceNSLink resource="imagestreams" name={ImageStreamModel.labelPlural} onClick={this.close} required={FLAGS.OPENSHIFT} startsWith={imagestreamsStartsWith} />
           </NavSection>
 
+          <NavSection text="Service Catalog" icon="pficon pficon-catalog" required={FLAGS.SERVICE_CATALOG} >
+            <ResourceClusterLink resource="clusterservicebrokers" name="Service Brokers" onClick={this.close} />
+            <ResourceClusterLink resource="clusterserviceclasses" name="Service Classes" onClick={this.close} />
+            <ResourceNSLink resource="serviceinstances" name="Service Instances" onClick={this.close} />
+            <ResourceNSLink resource="servicebindings" name="Service Bindings" onClick={this.close} />
+          </NavSection>
+
           <MonitoringNavSection closeMenu={this.close} />
 
           <NavSection text="Administration" icon="fa fa-cog">
@@ -430,6 +438,7 @@ export class Nav extends React.Component {
             <ResourceNSLink resource="roles" name="Roles" startsWith={rolesStartsWith} onClick={this.close} />
             <ResourceNSLink resource="rolebindings" name="Role Bindings" onClick={this.close} startsWith={rolebindingsStartsWith} />
             <ResourceNSLink resource="resourcequotas" name="Resource Quotas" onClick={this.close} />
+            <ResourceNSLink resource="limitranges" name="Limit Ranges" onClick={this.close} />
             <ResourceNSLink resource="chargeback.coreos.com:v1alpha1:Report" name="Chargeback" onClick={this.close} disallowed={FLAGS.OPENSHIFT} />
             <ResourceClusterLink resource="customresourcedefinitions" name="CRDs" onClick={this.close} required={FLAGS.CAN_LIST_CRD} />
           </NavSection>

@@ -497,6 +497,18 @@ spec:
     requests.memory: 1Gi
     limits.cpu: "2"
     limits.memory: 2Gi
+`).setIn([referenceForModel(k8sModels.LimitRangeModel), 'default'], `
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: mem-limit-range
+spec:
+  limits:
+  - default:
+      memory: 512Mi
+    defaultRequest:
+      memory: 256Mi
+    type: Container
 `).setIn([referenceForModel(k8sModels.StatefulSetModel), 'default'], `
 apiVersion: apps/v1
 kind: StatefulSet
@@ -693,4 +705,54 @@ spec:
     type: JenkinsPipeline
   triggers:
   - type: ConfigChange
+`).setIn([referenceForModel(k8sModels.ClusterServiceBrokerModel), 'default'], `
+apiVersion: servicecatalog.k8s.io/v1beta1
+kind: ClusterServiceBroker
+metadata:
+  name: example-cluster-service-broker
+spec:
+  url: https://example.com/broker/
+`).setIn([referenceForModel(k8sModels.ResourceQuotaModel), 'rq-compute'], `
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: compute-quota
+  namespace: 
+spec:
+  hard:
+    requests.cpu: '1'
+    requests.memory: 1Gi
+    limits.cpu: '2'
+    limits.memory: 2Gi
+`).setIn([referenceForModel(k8sModels.ResourceQuotaModel), 'rq-storageclass'], `
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: storage-class-quota
+  namespace: 
+spec:
+  hard:
+    requests.storage: 100Gi
+    persistentvolumeclaims: 100
+    # For quota specific to a storage class, the storage class must have the same name
+    gold.storage-class.kubernetes.io/requests.storage: 3Gi
+    gold.storage-class.kubernetes.io/persistentvolumeclaims: 5
+    silver.storage-class.kubernetes.io/requests.storage: 2Gi
+    silver.storage-class.kubernetes.io/persistentvolumeclaims: 3
+    bronze.storage-class.kubernetes.io/requests.storage: 1Gi
+    bronze.storage-class.kubernetes.io/persistentvolumeclaims: 1
+`).setIn([referenceForModel(k8sModels.ResourceQuotaModel), 'rq-counts'], `
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: object-counts
+  namespace: 
+spec:
+  hard:
+    configmaps: "10"
+    persistentvolumeclaims: "4"
+    replicationcontrollers: "20"
+    secrets: "10"
+    services: "10"
+    services.loadbalancers: "2"
 `);

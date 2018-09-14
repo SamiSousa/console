@@ -17,6 +17,7 @@ export const resourceRowsPresent = () => browser.wait(until.presenceOf($('.co-m-
 export const resourceRows = $$('.co-resource-list__item');
 export const resourceRowNamesAndNs = $$('.co-m-resource-icon + a');
 export const rowForName = (name: string) => resourceRows.filter((row) => row.$$('.co-m-resource-icon + a').first().getText().then(text => text === name)).first();
+export const rowForOperator = (name: string) => resourceRows.filter((row) => row.$('.co-clusterserviceversion-logo__name__clusterserviceversion').getText().then(text => text === name)).first();
 export const labelsForRow = (name: string) => rowForName(name).$$('.co-m-label');
 export const textFilter = $('.co-m-pane__filter-bar-group--filter input');
 export const gearOptions = {
@@ -91,7 +92,7 @@ export const activeRowFilters = $$('.row-filter--box__active');
 export const statusMessageTitle = $('.cos-status-box__title');
 export const statusMessageDetail = $('.cos-status-box__detail');
 
-const actionsButton = $('.co-m-nav-title .btn--actions');
+const actionsButton = $('.co-m-nav-title .co-actions-menu');
 export const actionsDropdown = actionsButton.$('button');
 export const actionsDropdownMenu = actionsButton.$$('.dropdown-menu').first();
 

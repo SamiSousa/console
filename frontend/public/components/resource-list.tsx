@@ -7,7 +7,7 @@ import * as _ from 'lodash-es';
 
 import { connectToPlural } from '../kinds';
 import { LoadingBox, AsyncComponent } from './utils';
-import { K8sResourceKindReference, referenceForModel, K8sKind } from '../module/k8s';
+import { K8sResourceKindReference, referenceForModel, K8sKind, isGroupVersionKind, kindForReference, apiVersionForReference } from '../module/k8s';
 import { ErrorPage404 } from './error';
 import { FLAGS, connectToFlags, flagPending } from '../features';
 import { OpenShiftGettingStarted } from './start-guide';
@@ -18,14 +18,14 @@ import { DefaultPage, DefaultDetailsPage } from './default-resource';
 const allParams = props => Object.assign({}, _.get(props, 'match.params'), props);
 
 const ResourceListPage_ = connectToPlural((props: ResourceListPageProps) => {
-  const { flags, kindObj, kindsInFlight, modelRef, ns } = allParams(props);
+  const { flags, kindObj, kindsInFlight, modelRef, ns, plural } = allParams(props);
 
   if (!kindObj) {
     if (kindsInFlight) {
       return <LoadingBox />;
     }
-
-    return <ErrorPage404 />;
+    const missingType = isGroupVersionKind(plural) ? `"${kindForReference(plural)}" in "${apiVersionForReference(plural)}"` : `"${plural}"`;
+    return <ErrorPage404 message={`The server doesn't have a resource type ${missingType}. Try refreshing the page if it was recently added.`} />;
   }
 
   const notProjectsListPage = kindObj.labelPlural !== 'Projects';
@@ -59,7 +59,7 @@ export const ResourceDetailsPage = connectToPlural((props: ResourceDetailsPagePr
 
   const ref = props.match.path.indexOf('customresourcedefinitions') === -1 ? referenceForModel(kindObj) : null;
   const componentLoader = props.match.params.appName
-    ? () => import('./cloud-services/clusterserviceversion-resource' /* webpackChunkName: "csv-resource" */).then(m => m.ClusterServiceVersionResourcesDetailsPage)
+    ? () => import('./operator-lifecycle-manager/clusterserviceversion-resource' /* webpackChunkName: "csv-resource" */).then(m => m.ClusterServiceVersionResourcesDetailsPage)
     : resourceDetailPages.get(ref, () => Promise.resolve(DefaultDetailsPage));
 
   return <React.Fragment>

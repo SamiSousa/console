@@ -748,3 +748,29 @@ export const ServiceBindingModel: K8sKind = {
   kind: 'ServiceBinding',
   id: 'servicebinding'
 };
+
+export const LimitRangeModel: K8sKind = {
+  label: 'Limit Range',
+  apiVersion: 'v1',
+  path: 'limitranges',
+  plural: 'limitranges',
+  abbr: 'LR',
+  namespaced: true,
+  kind: 'LimitRange',
+  id: 'limitrange',
+  labelPlural: 'Limit Ranges'
+};
+
+export const APIServiceModel: K8sKind = {
+  label: 'API Service',
+  labelPlural: 'API Services',
+  apiVersion: 'v1',
+  path: 'apiservices',
+  apiGroup: 'apiregistration.k8s.io',
+  plural: 'apiservices',
+  abbr: 'APIS',
+  namespaced: false,
+  kind: 'APIService',
+  id: 'apiservice',
+  crd: true,
+};
