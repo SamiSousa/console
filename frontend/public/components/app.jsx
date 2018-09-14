@@ -21,7 +21,8 @@ import { ResourceDetailsPage, ResourceListPage } from './resource-list';
 import { history, AsyncComponent, Loading } from './utils';
 import { namespacedPrefixes } from './utils/link';
 import { UIActions, getActiveNamespace } from '../ui/ui-actions';
-import { ClusterServiceVersionModel, SubscriptionModel, AlertmanagerModel } from '../models';
+import { KubernetesMarketplaceModel, ClusterServiceVersionModel, SubscriptionModel, AlertmanagerModel } from '../models';
+import { KubernetesMarketplace } from './marketplace';
 import { referenceForModel } from '../module/k8s';
 import k8sActions from '../module/k8s/k8s-actions';
 import '../vendor.scss';
@@ -137,6 +138,8 @@ class App extends React.PureComponent {
           <LazyRoute path={`/k8s/ns/:ns/${SubscriptionModel.plural}/new`} exact loader={() => import('./cloud-services').then(m => NamespaceFromURL(m.CreateSubscriptionYAML))} />
 
           <Route path="/k8s/ns/:ns/alertmanagers/:name" exact render={({match}) => <Redirect to={`/k8s/ns/${match.params.ns}/${referenceForModel(AlertmanagerModel)}/${match.params.name}`} />} />
+
+          <Route path={`/k8s/all-namespaces/${KubernetesMarketplaceModel.plural}`} component={KubernetesMarketplace} />
 
           <LazyRoute path={`/k8s/ns/:ns/${ClusterServiceVersionModel.plural}/:name/edit`} exact loader={() => import('./create-yaml').then(m => m.EditYAMLPage)} kind={referenceForModel(ClusterServiceVersionModel)} />
           <LazyRoute path={`/k8s/ns/:ns/${ClusterServiceVersionModel.plural}/:appName/:plural/new`} exact loader={() => import('./cloud-services/create-crd-yaml').then(m => m.CreateCRDYAML)} />

@@ -24,6 +24,7 @@ const ResourceListPage_ = connectToPlural((props: ResourceListPageProps) => {
     if (kindsInFlight) {
       return <LoadingBox />;
     }
+
     return <ErrorPage404 />;
   }
 

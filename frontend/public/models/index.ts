@@ -14,6 +14,20 @@ export const CatalogSourceModel: K8sKind = {
   plural: 'catalogsources',
 };
 
+export const KubernetesMarketplaceModel: K8sKind = {
+  kind: 'KubernetesMarketplace',
+  label: 'KubernetesMarketplace',
+  labelPlural: 'KubernetesMarketplaces',
+  apiGroup: 'operators.coreos.com',
+  apiVersion: 'v1alpha1',
+  path: 'kubernetesmarketplaces',
+  abbr: 'CSV',
+  namespaced: true,
+  crd: true,
+  plural: 'KubernetesMarketplaces',
+  propagationPolicy : 'Foreground',
+};
+
 export const ClusterServiceVersionModel: K8sKind = {
   kind: 'ClusterServiceVersion',
   label: 'ClusterServiceVersion',
